@@ -1,0 +1,48 @@
+name: Update CloudFlareYes CMCC IPs
+
+on:
+  schedule:
+    # 每天北京时间早晚 8 点自动抓取更新 (对应 UTC 时间的 0点 和 12点)
+    - cron: '0 0,12 * * *'
+  workflow_dispatch: # 允许你在网页上手动点击按钮触发运行
+
+permissions:
+  contents: write # 赋予 GitHub Actions 写入代码库的权限
+
+jobs:
+  fetch-and-update:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Fetch and Filter IPs
+        run: |
+          # 1. 请求 Hostmonit 官方 API
+          # 2. 用 jq 精准过滤出 CMCC (移动) 的数据
+          # 3. 提取 ip 字段 (包含 i4 和 i6)，直接写入 cfyes_cmcc.txt
+          curl -s -X POST https://api.hostmonit.com/get_optimization_ip \
+          -H "Content-Type: application/json" \
+          -d '{"key": "iui"}' | jq -r '.info[] | select(.line == "CMCC") | .ip' > cfyes_cmcc.txt
+          
+          # 检查文件是否生成且不为空
+          if [ ! -s cfyes_cmcc.txt ]; then
+            echo "抓取失败或 API 返回为空！"
+            exit 1
+          fi
+          echo "成功抓取到 $(wc -l < cfyes_cmcc.txt) 个移动 IP。"
+
+      - name: Commit and Push Changes
+        run: |
+          # 配置机器人账号用于提交
+          git config --local user.email "github-actions[bot]@users.noreply.github.com"
+          git config --local user.name "github-actions[bot]"
+          git add cfyes_cmcc.txt
+          
+          # 对比文件，只有当 IP 列表发生变化时才提交，避免产生大量无用 commit
+          if git diff --staged --quiet; then
+            echo "IP 列表没有变化，跳过提交。"
+          else
+            git commit -m "Auto-update CFYes CMCC IPs"
+            git push
+          fi
