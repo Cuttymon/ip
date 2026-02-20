@@ -20,13 +20,13 @@ jobs:
 
       - name: Fetch and format IPs
         run: |
-          curl -sSL https://cf.090227.xyz/cmcc?ips=5 | sed 's/#.*//' | awk '{print $0 "#CMCC-IPv4_CMLiu_" NR}' > ./bestcf/ip.txt
-          curl -sSL https://cf.090227.xyz/cmcc-ipv6 | sed 's/#.*//' | awk '{print $0 "#CMCC-IPv6_CMLiu_" NR}' >> ./bestcf/ip.txt
-          curl -sSL https://api.hostmonit.com/get_optimization_ip --data-raw '{"key":"iDetkOys"}' | jq -r '.info[] | select(.line == "CM") | .ip' | awk '{print $0 "#CMCC-IPv4_CFYes_" NR}' >> ./bestcf/ip.txt
-          curl -sSL https://api.hostmonit.com/get_optimization_ip --data-raw '{"key":"iDetkOys","type":"v6"}' | jq -r '.info[] | select(.line == "CM") | .ip' | awk '{print "["$0"]#CMCC-IPv6_CFYes_" NR}' >> ./bestcf/ip.txt
-          curl -sSL https://vps789.com/openApi/cfIpApi | jq -r '.data.AllAvg[].ip' | awk '{print $0 "#CF-IPv4_VPS789_" NR}' > ./bestcf/ip.txt
-          curl -sSL https://ipdb.api.030101.xyz/?type=bestcfv4 | head -n 5 | awk '{print $0 "#CF-IPv4_IPDB_" NR}' >> ./bestcf/ip.txt
-          curl -sSL https://ipdb.api.030101.xyz/?type=bestcfv6 | head -n 5 | awk '{print "["$0"]#CF-IPv6_IPDB_" NR}' >> ./bestcf/ip.txt
+          curl -sSL https://cf.090227.xyz/cmcc?ips=5 | sed 's/#.*//' | awk '{print $0 "#CMCC-IPv4_CMLiu_" NR}' > ./ip.txt
+          curl -sSL https://cf.090227.xyz/cmcc-ipv6 | sed 's/#.*//' | awk '{print $0 "#CMCC-IPv6_CMLiu_" NR}' >> ./ip.txt
+          curl -sSL https://api.hostmonit.com/get_optimization_ip --data-raw '{"key":"iDetkOys"}' | jq -r '.info[] | select(.line == "CM") | .ip' | awk '{print $0 "#CMCC-IPv4_CFYes_" NR}' >> ./ip.txt
+          curl -sSL https://api.hostmonit.com/get_optimization_ip --data-raw '{"key":"iDetkOys","type":"v6"}' | jq -r '.info[] | select(.line == "CM") | .ip' | awk '{print "["$0"]#CMCC-IPv6_CFYes_" NR}' >> ./ip.txt
+          curl -sSL https://www.wetest.vip/page/cloudflare/address_v4.html | awk '/移动/{getline; print}' | awk -F '[<>]' '{print $3}' | awk '{print $0 "#CMCC-IPv4_WeTest_" NR}' >> ./ip.txt
+          curl -sSL https://www.wetest.vip/page/cloudflare/address_v6.html | awk '/移动/{getline; print}' | awk -F '[<>]' '{print $3}' | awk '{print "["$0"]#CMCC-IPv6_WeTest_" NR}' >> ./ip.txt
+          
       - name: Commit and Push changes
         run: |
           # 配置 git 机器人信息
@@ -34,7 +34,7 @@ jobs:
           git config --local user.name "github-actions[bot]"
           
           # 添加生成的文件
-          git add ./bestcf/ip.txt
+          git add ./ip.txt
           
           # 检查是否有内容变动，有变动才提交，防止报错
           if git diff --staged --quiet; then
