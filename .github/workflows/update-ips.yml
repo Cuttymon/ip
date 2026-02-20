@@ -3,7 +3,7 @@ name: Fetch CMCC Optimization IPs
 on:
   schedule:
     # 每天 UTC 时间凌晨 0 点（北京时间早上 8 点）自动执行
-    - cron: '0 0 * * *'
+    - cron: "0 */12 * * *"
   # 允许在 GitHub Actions 页面手动点击运行
   workflow_dispatch: 
 
@@ -20,22 +20,13 @@ jobs:
 
       - name: Fetch and format IPs
         run: |
-          # 1. 确保目标文件夹存在，防止报错
-          mkdir -p ./bestcf
-
-          # 2. 清空旧的文件内容 (如果你希望无限追加，可以把这行删掉。通常每天更新建议覆盖旧数据)
-          > ./bestcf/cmcc-ip.txt
-          
-          # 3. 执行你的命令：获取 IPv4
-          curl -sSL https://api.hostmonit.com/get_optimization_ip --data-raw '{"key":"iDetkOys"}' | \
-          jq -r '.info[] | select(.line == "CM") | .ip' | \
-          awk '{print $0 "#CMCC-IPv4_CFYes_" NR}' >> ./bestcf/cmcc-ip.txt
-          
-          # 4. 执行你的命令：获取 IPv6
-          curl -sSL https://api.hostmonit.com/get_optimization_ip --data-raw '{"key":"iDetkOys","type":"v6"}' | \
-          jq -r '.info[] | select(.line == "CM") | .ip' | \
-          awk '{print "["$0"]#CMCC-IPv6_CFYes_" NR}' >> ./bestcf/cmcc-ip.txt
-
+          curl -sSL https://cf.090227.xyz/cmcc?ips=5 | sed 's/#.*//' | awk '{print $0 "#CMCC-IPv4_CMLiu_" NR}' > ./bestcf/ip.txt
+          curl -sSL https://cf.090227.xyz/cmcc-ipv6 | sed 's/#.*//' | awk '{print $0 "#CMCC-IPv6_CMLiu_" NR}' >> ./bestcf/ip.txt
+          curl -sSL https://api.hostmonit.com/get_optimization_ip --data-raw '{"key":"iDetkOys"}' | jq -r '.info[] | select(.line == "CM") | .ip' | awk '{print $0 "#CMCC-IPv4_CFYes_" NR}' >> ./bestcf/ip.txt
+          curl -sSL https://api.hostmonit.com/get_optimization_ip --data-raw '{"key":"iDetkOys","type":"v6"}' | jq -r '.info[] | select(.line == "CM") | .ip' | awk '{print "["$0"]#CMCC-IPv6_CFYes_" NR}' >> ./bestcf/ip.txt
+          curl -sSL https://vps789.com/openApi/cfIpApi | jq -r '.data.AllAvg[].ip' | awk '{print $0 "#CF-IPv4_VPS789_" NR}' > ./bestcf/ip.txt
+          curl -sSL https://ipdb.api.030101.xyz/?type=bestcfv4 | head -n 5 | awk '{print $0 "#CF-IPv4_IPDB_" NR}' >> ./bestcf/ip.txt
+          curl -sSL https://ipdb.api.030101.xyz/?type=bestcfv6 | head -n 5 | awk '{print "["$0"]#CF-IPv6_IPDB_" NR}' >> ./bestcf/ip.txt
       - name: Commit and Push changes
         run: |
           # 配置 git 机器人信息
@@ -43,12 +34,12 @@ jobs:
           git config --local user.name "github-actions[bot]"
           
           # 添加生成的文件
-          git add ./bestcf/cmcc-ip.txt
+          git add ./bestcf/ip.txt
           
           # 检查是否有内容变动，有变动才提交，防止报错
           if git diff --staged --quiet; then
             echo "IP 数据无变化，跳过提交"
           else
-            git commit -m "Auto-update CMCC IPs"
+            git commit -m "Auto-update IPs"
             git push
           fi
