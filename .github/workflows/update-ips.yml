@@ -19,13 +19,30 @@ jobs:
 
       - name: Fetch and format IPs
         run: |
-          curl -sSL https://cf.090227.xyz/cmcc?ips=5 | sed 's/#.*//' | awk '{print $0 "#CMCC-IPv4_CMLiu_" NR}' > ./ip.txt
+          # 1. 初始化文件（清空旧数据）
+          > ./ip.txt
+          > ./cfyes.txt
+
+          # 2. CMLiu (写入主文件)
+          curl -sSL https://cf.090227.xyz/cmcc?ips=5 | sed 's/#.*//' | awk '{print $0 "#CMCC-IPv4_CMLiu_" NR}' >> ./ip.txt
           curl -sSL https://cf.090227.xyz/cmcc-ipv6 | sed 's/#.*//' | awk '{print $0 "#CMCC-IPv6_CMLiu_" NR}' >> ./ip.txt
+          
+          # 3. VPS789 CM (写入主文件)
           curl -sSL https://vps789.com/openApi/cfIpApi | jq -r '.data.CM[].ip' | awk '{print $0 "#CMCC-IPv4_VPS789_" NR}' >> ./ip.txt
-          curl -sSL https://api.hostmonit.com/get_optimization_ip --data-raw '{"key":"iDetkOys"}' | jq -r '.info[] | select(.line == "CM") | .ip' | awk '{print $0 "#CMCC-IPv4_CFYes_" NR}' >> ./ip.txt
-          curl -sSL https://api.hostmonit.com/get_optimization_ip --data-raw '{"key":"iDetkOys","type":"v6"}' | jq -r '.info[] | select(.line == "CM") | .ip' | awk '{print "["$0"]#CMCC-IPv6_CFYes_" NR}' >> ./ip.txt
+          
+          # 4. CFYes / Hostmonit (重点修改：先写入 cfyes.txt，再追加到 ip.txt)
+          # 获取 IPv4
+          curl -sSL https://api.hostmonit.com/get_optimization_ip --data-raw '{"key":"iDetkOys"}' | jq -r '.info[] | select(.line == "CM") | .ip' | awk '{print $0 "#CMCC-IPv4_CFYes_" NR}' >> ./cfyes.txt
+          # 获取 IPv6
+          curl -sSL https://api.hostmonit.com/get_optimization_ip --data-raw '{"key":"iDetkOys","type":"v6"}' | jq -r '.info[] | select(.line == "CM") | .ip' | awk '{print "["$0"]#CMCC-IPv6_CFYes_" NR}' >> ./cfyes.txt
+          # 将 cfyes 的内容合并进主 ip.txt (如果你不想主文件包含这些，可以删掉下面这一行)
+          cat ./cfyes.txt >> ./ip.txt
+
+          # 5. WeTest (写入主文件)
           curl -sSL https://www.wetest.vip/page/cloudflare/address_v4.html | awk '/移动/{getline; print}' | awk -F '[<>]' '{print $3}' | awk '{print $0 "#CMCC-IPv4_WeTest_" NR}' >> ./ip.txt
           curl -sSL https://www.wetest.vip/page/cloudflare/address_v6.html | awk '/移动/{getline; print}' | awk -F '[<>]' '{print $3}' | awk '{print "["$0"]#CMCC-IPv6_WeTest_" NR}' >> ./ip.txt
+          
+          # 6. 其他通用优选 (写入主文件)
           curl -sSL https://vps789.com/openApi/cfIpApi | jq -r '.data.AllAvg[].ip' | awk '{print $0 "#CF-IPv4_VPS789_" NR}' >> ./ip.txt
           curl -sSL https://ip.164746.xyz/ipTop10.html | tr ',' '\n' | head -n 5 | awk '{print $0 "#CF-IPv4_CFSpeedTest_" NR}' >> ./ip.txt
           curl -sSL https://ipdb.api.030101.xyz/?type=bestcfv4 | head -n 5 | awk '{print $0 "#CF-IPv4_IPDB_" NR}' >> ./ip.txt
@@ -37,13 +54,13 @@ jobs:
           git config --local user.email "github-actions[bot]@users.noreply.github.com"
           git config --local user.name "github-actions[bot]"
           
-          # 添加生成的文件
-          git add ./ip.txt
+          # 添加生成的文件 (ip.txt 和 cfyes.txt)
+          git add ./ip.txt ./cfyes.txt
           
-          # 检查是否有内容变动，有变动才提交，防止报错
+          # 检查是否有内容变动
           if git diff --staged --quiet; then
             echo "IP 数据无变化，跳过提交"
           else
-            git commit -m "Auto-update IPs"
+            git commit -m "Auto-update IPs (incl. separated CFYes)"
             git push
           fi
