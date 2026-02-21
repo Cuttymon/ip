@@ -19,12 +19,9 @@ jobs:
 
       - name: Fetch and format IPs
         run: |
-          # 1. 初始化文件（清空旧数据）
-          > ./ip.txt
-          > ./cfyes.txt
 
           # 2. CMLiu (写入主文件)
-          curl -sSL https://cf.090227.xyz/cmcc?ips=5 | sed 's/#.*//' | awk '{print $0 "#CMCC-IPv4_CMLiu_" NR}' >> ./ip.txt
+          curl -sSL https://cf.090227.xyz/cmcc?ips=5 | sed 's/#.*//' | awk '{print $0 "#CMCC-IPv4_CMLiu_" NR}' > ./ip.txt
           curl -sSL https://cf.090227.xyz/cmcc-ipv6 | sed 's/#.*//' | awk '{print $0 "#CMCC-IPv6_CMLiu_" NR}' >> ./ip.txt
           
           # 3. VPS789 CM (写入主文件)
@@ -32,7 +29,7 @@ jobs:
           
           # 4. CFYes / Hostmonit (重点修改：先写入 cfyes.txt，再追加到 ip.txt)
           # 获取 IPv4
-          curl -sSL https://api.hostmonit.com/get_optimization_ip --data-raw '{"key":"iDetkOys"}' | jq -r '.info[] | select(.line == "CM") | .ip' | awk '{print $0 "#CMCC-IPv4_CFYes_" NR}' >> ./cfyes.txt
+          curl -sSL https://api.hostmonit.com/get_optimization_ip --data-raw '{"key":"iDetkOys"}' | jq -r '.info[] | select(.line == "CM") | .ip' | awk '{print $0 "#CMCC-IPv4_CFYes_" NR}' > ./cfyes.txt
           # 获取 IPv6
           curl -sSL https://api.hostmonit.com/get_optimization_ip --data-raw '{"key":"iDetkOys","type":"v6"}' | jq -r '.info[] | select(.line == "CM") | .ip' | awk '{print "["$0"]#CMCC-IPv6_CFYes_" NR}' >> ./cfyes.txt
           # 将 cfyes 的内容合并进主 ip.txt (如果你不想主文件包含这些，可以删掉下面这一行)
