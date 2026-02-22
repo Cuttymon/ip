@@ -35,7 +35,7 @@ jobs:
           # 将 cfyes 的内容合并进主 ip.txt (如果你不想主文件包含这些，可以删掉下面这一行)
           cat ./cfyes.txt >> ./ip.txt
 
-          # 5. WeTest (写入主文件)
+          # 5. WeTest Cloudflare (写入主文件)
           curl -sSL https://www.wetest.vip/page/cloudflare/address_v4.html | awk '/移动/{getline; print}' | awk -F '[<>]' '{print $3}' | awk '{print $0 "#CMCC-IPv4_WeTest_" NR}' >> ./ip.txt
           curl -sSL https://www.wetest.vip/page/cloudflare/address_v6.html | awk '/移动/{getline; print}' | awk -F '[<>]' '{print $3}' | awk '{print "["$0"]#CMCC-IPv6_WeTest_" NR}' >> ./ip.txt
           
@@ -44,6 +44,10 @@ jobs:
           curl -sSL https://ip.164746.xyz/ipTop10.html | tr ',' '\n' | head -n 5 | awk '{print $0 "#CF-IPv4_CFSpeedTest_" NR}' >> ./ip.txt
           curl -sSL https://ipdb.api.030101.xyz/?type=bestcfv4 | head -n 5 | awk '{print $0 "#CF-IPv4_IPDB_" NR}' >> ./ip.txt
           curl -sSL https://ipdb.api.030101.xyz/?type=bestcfv6 | head -n 5 | awk '{print "["$0"]#CF-IPv6_IPDB_" NR}' >> ./ip.txt
+
+          # 7. WeTest EdgeOne (单独写入 edgeone.txt)
+          # 使用 grep 提取所有 IPv4 地址，以防止网页结构变化导致 awk 提取失败
+          curl -sSL https://www.wetest.vip/page/edgeone/address_v4.html | grep -oE '[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}' | awk '{print $0 "#EdgeOne-IPv4_WeTest_" NR}' > ./edgeone.txt
           
       - name: Commit and Push changes
         run: |
@@ -51,13 +55,13 @@ jobs:
           git config --local user.email "github-actions[bot]@users.noreply.github.com"
           git config --local user.name "github-actions[bot]"
           
-          # 添加生成的文件 (ip.txt 和 cfyes.txt)
-          git add ./ip.txt ./cfyes.txt
+          # 添加生成的文件 (新增 edgeone.txt)
+          git add ./ip.txt ./cfyes.txt ./edgeone.txt
           
           # 检查是否有内容变动
           if git diff --staged --quiet; then
             echo "IP 数据无变化，跳过提交"
           else
-            git commit -m "Auto-update IPs (incl. separated CFYes)"
+            git commit -m "Auto-update IPs (incl. EdgeOne)"
             git push
           fi
