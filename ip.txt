@@ -515,193 +515,221 @@
                         <span class="resource-desc">Cloudflare 优选 IP 汇总列表</span>#CMCC-IPv6_CMLiu_507
                     </span>#CMCC-IPv6_CMLiu_508
                 </a>#CMCC-IPv6_CMLiu_509
-            </div>#CMCC-IPv6_CMLiu_510
-        </div>#CMCC-IPv6_CMLiu_511
-    </div>#CMCC-IPv6_CMLiu_512
-    </div>#CMCC-IPv6_CMLiu_513
-#CMCC-IPv6_CMLiu_514
-    <script>#CMCC-IPv6_CMLiu_515
-        /* 轻量页签路由：#CMCC-IPv6_CMLiu_516
-           页面切换仅控制 .page 容器显隐，script.js 的全部功能与 DOM 契约不受影响 */#CMCC-IPv6_CMLiu_517
-        (function () {#CMCC-IPv6_CMLiu_518
-            var PAGES = ['network', 'domains', 'splittunnel', 'api', 'resources'];#CMCC-IPv6_CMLiu_519
-            var pages = document.querySelectorAll('.page[data-page]');#CMCC-IPv6_CMLiu_520
-            var links = document.querySelectorAll('.nav-link[data-page]');#CMCC-IPv6_CMLiu_521
-#CMCC-IPv6_CMLiu_522
-            function currentRoute() {#CMCC-IPv6_CMLiu_523
-                var m = location.hash.match(/^#CMCC-IPv6_CMLiu_524
-                return (m && PAGES.indexOf(m[1]) !== -1) ? m[1] : 'network';#CMCC-IPv6_CMLiu_525
-            }#CMCC-IPv6_CMLiu_526
-#CMCC-IPv6_CMLiu_527
-            function show(route) {#CMCC-IPv6_CMLiu_528
-                pages.forEach(function (p) { p.hidden = p.getAttribute('data-page') !== route; });#CMCC-IPv6_CMLiu_529
-                links.forEach(function (l) {#CMCC-IPv6_CMLiu_530
-                    var active = l.getAttribute('data-page') === route;#CMCC-IPv6_CMLiu_531
-                    l.classList.toggle('active', active);#CMCC-IPv6_CMLiu_532
-                    if (active) { l.setAttribute('aria-current', 'page'); }#CMCC-IPv6_CMLiu_533
-                    else { l.removeAttribute('aria-current'); }#CMCC-IPv6_CMLiu_534
-                });#CMCC-IPv6_CMLiu_535
-                window.scrollTo(0, 0);#CMCC-IPv6_CMLiu_536
-                if (route === 'api' && typeof loadApiPreviews === 'function') { loadApiPreviews(); }#CMCC-IPv6_CMLiu_537
-                if (route === 'splittunnel' && typeof initSplitTunnel === 'function') { initSplitTunnel(); }#CMCC-IPv6_CMLiu_538
-            }#CMCC-IPv6_CMLiu_539
-#CMCC-IPv6_CMLiu_540
-            window.addEventListener('hashchange', function () { show(currentRoute()); });#CMCC-IPv6_CMLiu_541
-            show(currentRoute());#CMCC-IPv6_CMLiu_542
-#CMCC-IPv6_CMLiu_543
-            /* API 响应预览：懒加载（首次切到 API 页签才请求），请求本站相对路径（同源）；#CMCC-IPv6_CMLiu_544
-               显示与复制的完整地址由页面加载时的补全逻辑基于 location.origin 生成；#CMCC-IPv6_CMLiu_545
-               响应为纯文本，按 "IP#CMCC-IPv6_CMLiu_546
-               各段 textContent 拼接与原文完全一致，不改动任何内容 */#CMCC-IPv6_CMLiu_547
-            function renderApiPreview(body, text) {#CMCC-IPv6_CMLiu_548
-                body.textContent = '';#CMCC-IPv6_CMLiu_549
-                var lines = text.split('\n');#CMCC-IPv6_CMLiu_550
-                while (lines.length && lines[lines.length - 1].trim() === '') { lines.pop(); }#CMCC-IPv6_CMLiu_551
-                if (!lines.length) {#CMCC-IPv6_CMLiu_552
-                    body.textContent = '（接口返回空内容）';#CMCC-IPv6_CMLiu_553
-                    return;#CMCC-IPv6_CMLiu_554
-                }#CMCC-IPv6_CMLiu_555
-                lines.forEach(function (line) {#CMCC-IPv6_CMLiu_556
-                    if (line.trim() === '') { return; }#CMCC-IPv6_CMLiu_557
-                    var row = document.createElement('div');#CMCC-IPv6_CMLiu_558
-                    row.className = 'api-preview-row';#CMCC-IPv6_CMLiu_559
-                    var i = line.indexOf('#CMCC-IPv6_CMLiu_560
-                    if (i > -1) {#CMCC-IPv6_CMLiu_561
-                        var ip = document.createElement('span');#CMCC-IPv6_CMLiu_562
-                        ip.className = 'api-preview-ip';#CMCC-IPv6_CMLiu_563
-                        ip.textContent = line.slice(0, i);#CMCC-IPv6_CMLiu_564
-                        var sep = document.createElement('span');#CMCC-IPv6_CMLiu_565
-                        sep.className = 'api-preview-sep';#CMCC-IPv6_CMLiu_566
-                        sep.textContent = '#CMCC-IPv6_CMLiu_567
-                        var remark = document.createElement('span');#CMCC-IPv6_CMLiu_568
-                        remark.className = 'api-preview-remark';#CMCC-IPv6_CMLiu_569
-                        remark.textContent = line.slice(i + 1);#CMCC-IPv6_CMLiu_570
-                        row.appendChild(ip);#CMCC-IPv6_CMLiu_571
-                        row.appendChild(sep);#CMCC-IPv6_CMLiu_572
-                        row.appendChild(remark);#CMCC-IPv6_CMLiu_573
-                    } else {#CMCC-IPv6_CMLiu_574
-                        var only = document.createElement('span');#CMCC-IPv6_CMLiu_575
-                        only.className = 'api-preview-ip';#CMCC-IPv6_CMLiu_576
-                        only.textContent = line;#CMCC-IPv6_CMLiu_577
-                        row.appendChild(only);#CMCC-IPv6_CMLiu_578
-                    }#CMCC-IPv6_CMLiu_579
-                    body.appendChild(row);#CMCC-IPv6_CMLiu_580
-                });#CMCC-IPv6_CMLiu_581
-            }#CMCC-IPv6_CMLiu_582
-#CMCC-IPv6_CMLiu_583
-            function loadApiPreviews() {#CMCC-IPv6_CMLiu_584
-                document.querySelectorAll('.api-preview[data-api]').forEach(function (box) {#CMCC-IPv6_CMLiu_585
-                    if (box.getAttribute('data-loaded') === '1') { return; }#CMCC-IPv6_CMLiu_586
-                    box.setAttribute('data-loaded', '1');#CMCC-IPv6_CMLiu_587
-                    var body = box.querySelector('.api-preview-body');#CMCC-IPv6_CMLiu_588
-                    var btn = box.querySelector('.api-refresh-btn');#CMCC-IPv6_CMLiu_589
-                    body.innerHTML = '<span class="api-preview-loading">加载中…</span>';#CMCC-IPv6_CMLiu_590
-                    body.classList.remove('api-preview-error');#CMCC-IPv6_CMLiu_591
-                    if (btn) { btn.disabled = true; }#CMCC-IPv6_CMLiu_592
-                    var finish = function () { if (btn) { btn.disabled = false; } };#CMCC-IPv6_CMLiu_593
-                    var ctrl = ('AbortController' in window) ? new AbortController() : null;#CMCC-IPv6_CMLiu_594
-                    var timer = ctrl ? setTimeout(function () { ctrl.abort(); }, 10000) : null;#CMCC-IPv6_CMLiu_595
-                    fetch(box.getAttribute('data-api'), ctrl ? { signal: ctrl.signal } : undefined)#CMCC-IPv6_CMLiu_596
-                        .then(function (r) {#CMCC-IPv6_CMLiu_597
-                            if (!r.ok) { throw new Error('HTTP ' + r.status); }#CMCC-IPv6_CMLiu_598
-                            return r.text();#CMCC-IPv6_CMLiu_599
-                        })#CMCC-IPv6_CMLiu_600
-                        .then(function (text) { renderApiPreview(body, text); })#CMCC-IPv6_CMLiu_601
-                        .catch(function (err) {#CMCC-IPv6_CMLiu_602
-                            var why = (err && err.name === 'AbortError') ? '请求超时'#CMCC-IPv6_CMLiu_603
-                                : (err && err.message) ? err.message : '网络错误';#CMCC-IPv6_CMLiu_604
-                            body.textContent = '⚠️ 预览获取失败：' + why + '（点击「刷新」重试）';#CMCC-IPv6_CMLiu_605
-                            body.classList.add('api-preview-error');#CMCC-IPv6_CMLiu_606
-                        })#CMCC-IPv6_CMLiu_607
-                        .then(finish, finish);#CMCC-IPv6_CMLiu_608
+                <a class="resource-link" href="https://stock.hostmonit.com/CloudFlareYes" target="_blank"#CMCC-IPv6_CMLiu_510
+                    rel="noopener noreferrer">#CMCC-IPv6_CMLiu_511
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none"#CMCC-IPv6_CMLiu_512
+                        stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"#CMCC-IPv6_CMLiu_513
+                        aria-hidden="true">#CMCC-IPv6_CMLiu_514
+                        <polyline points="22 12 18 12 15 21 9 3 6 12 2 12"></polyline>#CMCC-IPv6_CMLiu_515
+                    </svg>#CMCC-IPv6_CMLiu_516
+                    <span class="resource-text">#CMCC-IPv6_CMLiu_517
+                        <span class="resource-name">stock.hostmonit.com</span>#CMCC-IPv6_CMLiu_518
+                        <span class="resource-desc">查看三网优选 IP 延迟丢包与机房明细</span>#CMCC-IPv6_CMLiu_519
+                    </span>#CMCC-IPv6_CMLiu_520
+                </a>#CMCC-IPv6_CMLiu_521
+                <a class="resource-link" href="https://v2rayssr.com/cfip/" target="_blank" rel="noopener noreferrer">#CMCC-IPv6_CMLiu_522
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none"#CMCC-IPv6_CMLiu_523
+                        stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"#CMCC-IPv6_CMLiu_524
+                        aria-hidden="true">#CMCC-IPv6_CMLiu_525
+                        <line x1="8" y1="6" x2="21" y2="6"></line>#CMCC-IPv6_CMLiu_526
+                        <line x1="8" y1="12" x2="21" y2="12"></line>#CMCC-IPv6_CMLiu_527
+                        <line x1="8" y1="18" x2="21" y2="18"></line>#CMCC-IPv6_CMLiu_528
+                        <line x1="3" y1="6" x2="3.01" y2="6"></line>#CMCC-IPv6_CMLiu_529
+                        <line x1="3" y1="12" x2="3.01" y2="12"></line>#CMCC-IPv6_CMLiu_530
+                        <line x1="3" y1="18" x2="3.01" y2="18"></line>#CMCC-IPv6_CMLiu_531
+                    </svg>#CMCC-IPv6_CMLiu_532
+                    <span class="resource-text">#CMCC-IPv6_CMLiu_533
+                        <span class="resource-name">v2rayssr.com</span>#CMCC-IPv6_CMLiu_534
+                        <span class="resource-desc">汇总三网优选 IP 列表，每 10 分钟自动更新</span>#CMCC-IPv6_CMLiu_535
+                    </span>#CMCC-IPv6_CMLiu_536
+                </a>#CMCC-IPv6_CMLiu_537
+            </div>#CMCC-IPv6_CMLiu_538
+        </div>#CMCC-IPv6_CMLiu_539
+    </div>#CMCC-IPv6_CMLiu_540
+    </div>#CMCC-IPv6_CMLiu_541
+#CMCC-IPv6_CMLiu_542
+    <script>#CMCC-IPv6_CMLiu_543
+        /* 轻量页签路由：#CMCC-IPv6_CMLiu_544
+           页面切换仅控制 .page 容器显隐，script.js 的全部功能与 DOM 契约不受影响 */#CMCC-IPv6_CMLiu_545
+        (function () {#CMCC-IPv6_CMLiu_546
+            var PAGES = ['network', 'domains', 'splittunnel', 'api', 'resources'];#CMCC-IPv6_CMLiu_547
+            var pages = document.querySelectorAll('.page[data-page]');#CMCC-IPv6_CMLiu_548
+            var links = document.querySelectorAll('.nav-link[data-page]');#CMCC-IPv6_CMLiu_549
+#CMCC-IPv6_CMLiu_550
+            function currentRoute() {#CMCC-IPv6_CMLiu_551
+                var m = location.hash.match(/^#CMCC-IPv6_CMLiu_552
+                return (m && PAGES.indexOf(m[1]) !== -1) ? m[1] : 'network';#CMCC-IPv6_CMLiu_553
+            }#CMCC-IPv6_CMLiu_554
+#CMCC-IPv6_CMLiu_555
+            function show(route) {#CMCC-IPv6_CMLiu_556
+                pages.forEach(function (p) { p.hidden = p.getAttribute('data-page') !== route; });#CMCC-IPv6_CMLiu_557
+                links.forEach(function (l) {#CMCC-IPv6_CMLiu_558
+                    var active = l.getAttribute('data-page') === route;#CMCC-IPv6_CMLiu_559
+                    l.classList.toggle('active', active);#CMCC-IPv6_CMLiu_560
+                    if (active) { l.setAttribute('aria-current', 'page'); }#CMCC-IPv6_CMLiu_561
+                    else { l.removeAttribute('aria-current'); }#CMCC-IPv6_CMLiu_562
+                });#CMCC-IPv6_CMLiu_563
+                window.scrollTo(0, 0);#CMCC-IPv6_CMLiu_564
+                if (route === 'api' && typeof loadApiPreviews === 'function') { loadApiPreviews(); }#CMCC-IPv6_CMLiu_565
+                if (route === 'splittunnel' && typeof initSplitTunnel === 'function') { initSplitTunnel(); }#CMCC-IPv6_CMLiu_566
+            }#CMCC-IPv6_CMLiu_567
+#CMCC-IPv6_CMLiu_568
+            window.addEventListener('hashchange', function () { show(currentRoute()); });#CMCC-IPv6_CMLiu_569
+            show(currentRoute());#CMCC-IPv6_CMLiu_570
+#CMCC-IPv6_CMLiu_571
+            /* API 响应预览：懒加载（首次切到 API 页签才请求），请求本站相对路径（同源）；#CMCC-IPv6_CMLiu_572
+               显示与复制的完整地址由页面加载时的补全逻辑基于 location.origin 生成；#CMCC-IPv6_CMLiu_573
+               响应为纯文本，按 "IP#CMCC-IPv6_CMLiu_574
+               各段 textContent 拼接与原文完全一致，不改动任何内容 */#CMCC-IPv6_CMLiu_575
+            function renderApiPreview(body, text) {#CMCC-IPv6_CMLiu_576
+                body.textContent = '';#CMCC-IPv6_CMLiu_577
+                var lines = text.split('\n');#CMCC-IPv6_CMLiu_578
+                while (lines.length && lines[lines.length - 1].trim() === '') { lines.pop(); }#CMCC-IPv6_CMLiu_579
+                if (!lines.length) {#CMCC-IPv6_CMLiu_580
+                    body.textContent = '（接口返回空内容）';#CMCC-IPv6_CMLiu_581
+                    return;#CMCC-IPv6_CMLiu_582
+                }#CMCC-IPv6_CMLiu_583
+                lines.forEach(function (line) {#CMCC-IPv6_CMLiu_584
+                    if (line.trim() === '') { return; }#CMCC-IPv6_CMLiu_585
+                    var row = document.createElement('div');#CMCC-IPv6_CMLiu_586
+                    row.className = 'api-preview-row';#CMCC-IPv6_CMLiu_587
+                    var i = line.indexOf('#CMCC-IPv6_CMLiu_588
+                    if (i > -1) {#CMCC-IPv6_CMLiu_589
+                        var ip = document.createElement('span');#CMCC-IPv6_CMLiu_590
+                        ip.className = 'api-preview-ip';#CMCC-IPv6_CMLiu_591
+                        ip.textContent = line.slice(0, i);#CMCC-IPv6_CMLiu_592
+                        var sep = document.createElement('span');#CMCC-IPv6_CMLiu_593
+                        sep.className = 'api-preview-sep';#CMCC-IPv6_CMLiu_594
+                        sep.textContent = '#CMCC-IPv6_CMLiu_595
+                        var remark = document.createElement('span');#CMCC-IPv6_CMLiu_596
+                        remark.className = 'api-preview-remark';#CMCC-IPv6_CMLiu_597
+                        remark.textContent = line.slice(i + 1);#CMCC-IPv6_CMLiu_598
+                        row.appendChild(ip);#CMCC-IPv6_CMLiu_599
+                        row.appendChild(sep);#CMCC-IPv6_CMLiu_600
+                        row.appendChild(remark);#CMCC-IPv6_CMLiu_601
+                    } else {#CMCC-IPv6_CMLiu_602
+                        var only = document.createElement('span');#CMCC-IPv6_CMLiu_603
+                        only.className = 'api-preview-ip';#CMCC-IPv6_CMLiu_604
+                        only.textContent = line;#CMCC-IPv6_CMLiu_605
+                        row.appendChild(only);#CMCC-IPv6_CMLiu_606
+                    }#CMCC-IPv6_CMLiu_607
+                    body.appendChild(row);#CMCC-IPv6_CMLiu_608
                 });#CMCC-IPv6_CMLiu_609
             }#CMCC-IPv6_CMLiu_610
 #CMCC-IPv6_CMLiu_611
-            document.querySelectorAll('.api-preview .api-refresh-btn').forEach(function (btn) {#CMCC-IPv6_CMLiu_612
-                btn.addEventListener('click', function () {#CMCC-IPv6_CMLiu_613
-                    var box = btn.closest('.api-preview');#CMCC-IPv6_CMLiu_614
-                    if (box) {#CMCC-IPv6_CMLiu_615
-                        box.removeAttribute('data-loaded');#CMCC-IPv6_CMLiu_616
-                        loadApiPreviews();#CMCC-IPv6_CMLiu_617
-                    }#CMCC-IPv6_CMLiu_618
-                });#CMCC-IPv6_CMLiu_619
-            });#CMCC-IPv6_CMLiu_620
-#CMCC-IPv6_CMLiu_621
-            /* API 地址补全：页面加载时基于当前访问域名（location.origin）把相对路径补全为#CMCC-IPv6_CMLiu_622
-               完整 URL，用于显示与复制；data-api 保持相对路径不变（同源 fetch 等价）。#CMCC-IPv6_CMLiu_623
-               注意：本脚本在 script.js 之前执行，copyDomain 尚未定义，故只能延迟到点击时调用 */#CMCC-IPv6_CMLiu_624
-            if (location.protocol !== 'file:') {#CMCC-IPv6_CMLiu_625
-                document.querySelectorAll('.api-item').forEach(function (item) {#CMCC-IPv6_CMLiu_626
-                    var preview = item.querySelector('.api-preview[data-api]');#CMCC-IPv6_CMLiu_627
-                    if (!preview) { return; }#CMCC-IPv6_CMLiu_628
-                    var path = preview.getAttribute('data-api');#CMCC-IPv6_CMLiu_629
-                    var abs;#CMCC-IPv6_CMLiu_630
-                    try {#CMCC-IPv6_CMLiu_631
-                        abs = new URL(path, location.origin).href;#CMCC-IPv6_CMLiu_632
-                    } catch (err) {#CMCC-IPv6_CMLiu_633
-                        return; // file:// 无访问域名（Chrome 下 origin 为 "file://"）或其它异常 origin 时，直接跳过补全，保留 HTML 中的相对路径作为降级#CMCC-IPv6_CMLiu_634
-                    }#CMCC-IPv6_CMLiu_635
-                    var code = item.querySelector('.api-url');#CMCC-IPv6_CMLiu_636
-                    if (code) { code.textContent = abs; }#CMCC-IPv6_CMLiu_637
-                    var copyBtn = item.querySelector('.copy-btn-sm');#CMCC-IPv6_CMLiu_638
-                    if (copyBtn) {#CMCC-IPv6_CMLiu_639
-                        copyBtn.removeAttribute('onclick');#CMCC-IPv6_CMLiu_640
-                        copyBtn.addEventListener('click', function () { copyDomain(abs); });#CMCC-IPv6_CMLiu_641
-                    }#CMCC-IPv6_CMLiu_642
-                });#CMCC-IPv6_CMLiu_643
-            }#CMCC-IPv6_CMLiu_644
-        })();#CMCC-IPv6_CMLiu_645
-    </script>#CMCC-IPv6_CMLiu_646
-#CMCC-IPv6_CMLiu_647
-    <div class="footer">#CMCC-IPv6_CMLiu_648
-        <p>© 2025 - 2026 CloudFlare优选域名汇总 | 今日访问人数: <span id="visit-count">···</span> | 本站内容仅供参考，提供维护: <a#CMCC-IPv6_CMLiu_649
-                href='https://t.me/CMLiussss'>CMLiussss</a> </p>#CMCC-IPv6_CMLiu_650
-        <p class="footer-note">Cloudflare 在中国大陆暂无边缘 CDN 节点。所以本站汇总优选域名、落地 IP 与延迟测试数据，仅供参考与学习；使用请遵守当地法律法规并自行承担风险。</p>#CMCC-IPv6_CMLiu_651
-    </div>#CMCC-IPv6_CMLiu_652
-#CMCC-IPv6_CMLiu_653
-    <script src="script.js"></script>#CMCC-IPv6_CMLiu_654
-</body>#CMCC-IPv6_CMLiu_655
-#CMCC-IPv6_CMLiu_656
-</html>#CMCC-IPv6_CMLiu_657
-104.18.40.152#CMCC-IPv4_VPS789_1
-104.17.223.192#CMCC-IPv4_VPS789_2
-104.17.125.125#CMCC-IPv4_VPS789_3
-104.19.59.183#CMCC-IPv4_VPS789_4
-104.17.27.58#CMCC-IPv4_VPS789_5
-198.41.208.194#CMCC-IPv4_CFYes_1
-172.67.115.145#CMCC-IPv4_CFYes_2
-198.41.209.126#CMCC-IPv4_CFYes_3
-198.41.208.229#CMCC-IPv4_CFYes_4
-162.159.130.222#CMCC-IPv4_CFYes_5
-[2606:4700:8d95:1fab:6061:887f:bb52:dd4b]#CMCC-IPv6_CFYes_1
-[2606:4700:9765:65e1:5731:f74f:fa7:4c0f]#CMCC-IPv6_CFYes_2
-[2606:4700:8ca2:db86:e434:f8df:2c25:5f4d]#CMCC-IPv6_CFYes_3
-[2606:4700:9adc:32e6:8ea6:6d8e:f042:aa58]#CMCC-IPv6_CFYes_4
-[2606:4700:8d9b:129:c6d1:b153:a403:146a]#CMCC-IPv6_CFYes_5
-104.19.60.245#CMCC-IPv4_WeTest_1
-104.16.159.119#CMCC-IPv4_WeTest_2
-104.17.183.41#CMCC-IPv4_WeTest_3
-104.17.216.59#CMCC-IPv4_WeTest_4
-104.16.148.59#CMCC-IPv4_WeTest_5
-[2606:4700:52::9a1a:c289]#CMCC-IPv6_WeTest_1
-[2606:4700:9763::d588:3e4a]#CMCC-IPv6_WeTest_2
-[2606:4700:90d5::a1e0:695]#CMCC-IPv6_WeTest_3
-[2606:4700:9c67::22bd:c8d2]#CMCC-IPv6_WeTest_4
-[2606:4700:3031::f665:bd52]#CMCC-IPv6_WeTest_5
-172.64.155.159#CF-IPv4_VPS789_1
-172.64.156.99#CF-IPv4_VPS789_2
-162.159.35.20#CF-IPv4_VPS789_3
+            function loadApiPreviews() {#CMCC-IPv6_CMLiu_612
+                document.querySelectorAll('.api-preview[data-api]').forEach(function (box) {#CMCC-IPv6_CMLiu_613
+                    if (box.getAttribute('data-loaded') === '1') { return; }#CMCC-IPv6_CMLiu_614
+                    box.setAttribute('data-loaded', '1');#CMCC-IPv6_CMLiu_615
+                    var body = box.querySelector('.api-preview-body');#CMCC-IPv6_CMLiu_616
+                    var btn = box.querySelector('.api-refresh-btn');#CMCC-IPv6_CMLiu_617
+                    body.innerHTML = '<span class="api-preview-loading">加载中…</span>';#CMCC-IPv6_CMLiu_618
+                    body.classList.remove('api-preview-error');#CMCC-IPv6_CMLiu_619
+                    if (btn) { btn.disabled = true; }#CMCC-IPv6_CMLiu_620
+                    var finish = function () { if (btn) { btn.disabled = false; } };#CMCC-IPv6_CMLiu_621
+                    var ctrl = ('AbortController' in window) ? new AbortController() : null;#CMCC-IPv6_CMLiu_622
+                    var timer = ctrl ? setTimeout(function () { ctrl.abort(); }, 10000) : null;#CMCC-IPv6_CMLiu_623
+                    fetch(box.getAttribute('data-api'), ctrl ? { signal: ctrl.signal } : undefined)#CMCC-IPv6_CMLiu_624
+                        .then(function (r) {#CMCC-IPv6_CMLiu_625
+                            if (!r.ok) { throw new Error('HTTP ' + r.status); }#CMCC-IPv6_CMLiu_626
+                            return r.text();#CMCC-IPv6_CMLiu_627
+                        })#CMCC-IPv6_CMLiu_628
+                        .then(function (text) { renderApiPreview(body, text); })#CMCC-IPv6_CMLiu_629
+                        .catch(function (err) {#CMCC-IPv6_CMLiu_630
+                            var why = (err && err.name === 'AbortError') ? '请求超时'#CMCC-IPv6_CMLiu_631
+                                : (err && err.message) ? err.message : '网络错误';#CMCC-IPv6_CMLiu_632
+                            body.textContent = '⚠️ 预览获取失败：' + why + '（点击「刷新」重试）';#CMCC-IPv6_CMLiu_633
+                            body.classList.add('api-preview-error');#CMCC-IPv6_CMLiu_634
+                        })#CMCC-IPv6_CMLiu_635
+                        .then(finish, finish);#CMCC-IPv6_CMLiu_636
+                });#CMCC-IPv6_CMLiu_637
+            }#CMCC-IPv6_CMLiu_638
+#CMCC-IPv6_CMLiu_639
+            document.querySelectorAll('.api-preview .api-refresh-btn').forEach(function (btn) {#CMCC-IPv6_CMLiu_640
+                btn.addEventListener('click', function () {#CMCC-IPv6_CMLiu_641
+                    var box = btn.closest('.api-preview');#CMCC-IPv6_CMLiu_642
+                    if (box) {#CMCC-IPv6_CMLiu_643
+                        box.removeAttribute('data-loaded');#CMCC-IPv6_CMLiu_644
+                        loadApiPreviews();#CMCC-IPv6_CMLiu_645
+                    }#CMCC-IPv6_CMLiu_646
+                });#CMCC-IPv6_CMLiu_647
+            });#CMCC-IPv6_CMLiu_648
+#CMCC-IPv6_CMLiu_649
+            /* API 地址补全：页面加载时基于当前访问域名（location.origin）把相对路径补全为#CMCC-IPv6_CMLiu_650
+               完整 URL，用于显示与复制；data-api 保持相对路径不变（同源 fetch 等价）。#CMCC-IPv6_CMLiu_651
+               注意：本脚本在 script.js 之前执行，copyDomain 尚未定义，故只能延迟到点击时调用 */#CMCC-IPv6_CMLiu_652
+            if (location.protocol !== 'file:') {#CMCC-IPv6_CMLiu_653
+                document.querySelectorAll('.api-item').forEach(function (item) {#CMCC-IPv6_CMLiu_654
+                    var preview = item.querySelector('.api-preview[data-api]');#CMCC-IPv6_CMLiu_655
+                    if (!preview) { return; }#CMCC-IPv6_CMLiu_656
+                    var path = preview.getAttribute('data-api');#CMCC-IPv6_CMLiu_657
+                    var abs;#CMCC-IPv6_CMLiu_658
+                    try {#CMCC-IPv6_CMLiu_659
+                        abs = new URL(path, location.origin).href;#CMCC-IPv6_CMLiu_660
+                    } catch (err) {#CMCC-IPv6_CMLiu_661
+                        return; // file:// 无访问域名（Chrome 下 origin 为 "file://"）或其它异常 origin 时，直接跳过补全，保留 HTML 中的相对路径作为降级#CMCC-IPv6_CMLiu_662
+                    }#CMCC-IPv6_CMLiu_663
+                    var code = item.querySelector('.api-url');#CMCC-IPv6_CMLiu_664
+                    if (code) { code.textContent = abs; }#CMCC-IPv6_CMLiu_665
+                    var copyBtn = item.querySelector('.copy-btn-sm');#CMCC-IPv6_CMLiu_666
+                    if (copyBtn) {#CMCC-IPv6_CMLiu_667
+                        copyBtn.removeAttribute('onclick');#CMCC-IPv6_CMLiu_668
+                        copyBtn.addEventListener('click', function () { copyDomain(abs); });#CMCC-IPv6_CMLiu_669
+                    }#CMCC-IPv6_CMLiu_670
+                });#CMCC-IPv6_CMLiu_671
+            }#CMCC-IPv6_CMLiu_672
+        })();#CMCC-IPv6_CMLiu_673
+    </script>#CMCC-IPv6_CMLiu_674
+#CMCC-IPv6_CMLiu_675
+    <div class="footer">#CMCC-IPv6_CMLiu_676
+        <p>© 2025 - 2026 CloudFlare优选域名汇总 | 今日访问人数: <span id="visit-count">···</span> | 本站内容仅供参考，提供维护: <a#CMCC-IPv6_CMLiu_677
+                href='https://t.me/CMLiussss'>CMLiussss</a> </p>#CMCC-IPv6_CMLiu_678
+        <p class="footer-note">Cloudflare 在中国大陆暂无边缘 CDN 节点。所以本站汇总优选域名、落地 IP 与延迟测试数据，仅供参考与学习；使用请遵守当地法律法规并自行承担风险。</p>#CMCC-IPv6_CMLiu_679
+    </div>#CMCC-IPv6_CMLiu_680
+#CMCC-IPv6_CMLiu_681
+    <script src="script.js"></script>#CMCC-IPv6_CMLiu_682
+<!-- Cloudflare Pages Analytics --><script defer src='https://static.cloudflareinsights.com/beacon.min.js' data-cf-beacon='{"token": "983a78553a844af287b39c2aa1b146eb"}'></script><!-- Cloudflare Pages Analytics --></body>#CMCC-IPv6_CMLiu_683
+#CMCC-IPv6_CMLiu_684
+</html>#CMCC-IPv6_CMLiu_685
+104.17.146.69#CMCC-IPv4_VPS789_1
+104.17.49.51#CMCC-IPv4_VPS789_2
+172.64.155.159#CMCC-IPv4_VPS789_3
+104.17.31.33#CMCC-IPv4_VPS789_4
+104.17.117.253#CMCC-IPv4_VPS789_5
+172.67.169.200#CMCC-IPv4_CFYes_1
+172.67.160.254#CMCC-IPv4_CFYes_2
+172.67.173.234#CMCC-IPv4_CFYes_3
+198.41.208.50#CMCC-IPv4_CFYes_4
+172.67.171.42#CMCC-IPv4_CFYes_5
+[2606:4700:300b:bc13:cd5d:8e9c:8027:a756]#CMCC-IPv6_CFYes_1
+[2606:4700:8ca5:a10f:ab95:a8ec:17cd:8694]#CMCC-IPv6_CFYes_2
+[2606:4700:8ca5:560:fcc:6beb:da73:add7]#CMCC-IPv6_CFYes_3
+[2606:4700:83bb:7b71:b856:774b:b343:7da9]#CMCC-IPv6_CFYes_4
+[2606:4700:83bb:bf38:5fa7:866e:a241:2da0]#CMCC-IPv6_CFYes_5
+172.66.142.78#CMCC-IPv4_WeTest_1
+104.25.249.145#CMCC-IPv4_WeTest_2
+104.21.85.108#CMCC-IPv4_WeTest_3
+104.25.247.129#CMCC-IPv4_WeTest_4
+104.21.86.37#CMCC-IPv4_WeTest_5
+[2606:4700:9640::1e12:96be]#CMCC-IPv6_WeTest_1
+[2606:4700:99e0::b03a:7ef6]#CMCC-IPv6_WeTest_2
+[2606:4700:9ad4::5254:ff77]#CMCC-IPv6_WeTest_3
+[2606:4700:52::b705:b27c]#CMCC-IPv6_WeTest_4
+[2606:4700:90d3::4338:b5fd]#CMCC-IPv6_WeTest_5
+172.64.147.67#CF-IPv4_VPS789_1
+172.64.155.159#CF-IPv4_VPS789_2
+108.162.198.89#CF-IPv4_VPS789_3
 104.18.40.152#CF-IPv4_VPS789_4
-104.18.40.77#CF-IPv4_VPS789_5
+104.17.146.69#CF-IPv4_VPS789_5
 104.18.40.100#CF-IPv4_CFSpeedTest_1
 104.18.37.247#CF-IPv4_CFSpeedTest_2
-104.18.43.17#CF-IPv4_IPDB_1
-104.19.144.18#CF-IPv4_IPDB_2
-104.17.114.14#CF-IPv4_IPDB_3
-104.16.156.236#CF-IPv4_IPDB_4
-104.17.104.33#CF-IPv4_IPDB_5
-[2606:4700:0:ef:c5f9:1474:944d:12c9]#CF-IPv6_IPDB_1
-[2606:4700::e473:a887:e022:c03]#CF-IPv6_IPDB_2
-[2606:4700:0:ef:5bcb:5f86:1ade:3b27]#CF-IPv6_IPDB_3
-[2606:4700:0:906d:ac72:9a5e:9a20:9c94]#CF-IPv6_IPDB_4
-[2606:4700:0:a7:a032:632f:6d68:3eae]#CF-IPv6_IPDB_5
+172.66.45.67#CF-IPv4_IPDB_1
+172.67.67.74#CF-IPv4_IPDB_2
+104.20.59.196#CF-IPv4_IPDB_3
+104.17.61.111#CF-IPv4_IPDB_4
+104.17.245.154#CF-IPv4_IPDB_5
+[2606:4700:1c:dbfb:1c9c:2712:b74:e3c3]#CF-IPv6_IPDB_1
+[2606:4700:1c:110b:45b3:5839:f694:1143]#CF-IPv6_IPDB_2
+[2606:4700:0:7d78:7379:a18:ca46:5b0d]#CF-IPv6_IPDB_3
+[2606:4700:0:7d78:b24e:ceef:6d3:515a]#CF-IPv6_IPDB_4
+[2606:4700:1c:db10:24d4:f0b6:fb18:602f]#CF-IPv6_IPDB_5
